@@ -1,0 +1,33 @@
+version: '3'
+services:
+  db:
+    image: 'postgres:10.4-alpine'
+    volumes:
+      - '/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+    restart: always
+  rabbitmq:
+    image: 'rabbitmq'
+    restart: always
+  app:
+    build:
+      context: .
+      dockerfile: docker/app.Dockerfile
+    image: 'example/dramatiq_app'
+    depends_on:
+      - rabbitmq
+      - worker
+      - scheduler
+  worker:
+    build:
+      context: .
+      dockerfile: docker/dramatiq.Dockerfile
+    image: 'example/dramatiq_worker'
+    command: 'python manage.py rundramatiq'
+  scheduler:
+    build:
+      context: .
+      dockerfile: docker/dramatiq.Dockerfile
+    image: 'example/dramatiq_scheduler'
+    command: 'python manage.py scheduler'
