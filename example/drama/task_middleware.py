@@ -10,9 +10,6 @@ class JobMiddleware(dramatiq.middleware.Middleware):
             defaults={"name": message.actor_name, "status": status},
         )
 
-    def after_ack(self, broker, message):
-        self.job_update_or_create(message, "RECEIVED")
-
     def after_nack(self, broker, message):
         self.job_update_or_create(message, "REJECTED")
 
